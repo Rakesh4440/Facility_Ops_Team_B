@@ -1,0 +1,22 @@
+{
+  "users": {
+    "admin": {
+      "username": "admin",
+      "password_hash": "bc78e58d55cde1346e68f8e5fe588dedf62fa457aa646a500a53347faff6ee24",
+      "name": "Admin_Das",
+      "email": "admin@gmail.com",
+      "role": "admin",
+      "security_question": "What is the primary facility location?",
+      "security_answer": "bangalore"
+    },
+    "mahesh": {
+      "username": "mahesh",
+      "password_hash": "98fde39830ad959d2e46b4ff3e03146f5004f29a9db5958aa391f52a1dabdb4d",
+      "name": "Mahesh",
+      "email": "mahesh@gmail.com",
+      "role": "technician",
+      "security_question": "What is the primary facility location?",
+      "security_answer": "bangalore"
+    }
+  }
+}

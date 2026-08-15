@@ -1,0 +1,5 @@
+ID,Product ID,Machine Type,Issue,Priority,Assigned To,Due Date,Status
+WO-1002,L47181,L,Replace worn cutting tool,Medium,R. Patel,2026-07-20,In Progress
+WO-1003,H29424,H,Review heat dissipation,High,K. Singh,2026-07-17,Open
+WO-1004,L50962,L,Complete preventive inspection,Low,P. Das,2026-07-22,Completed
+WO-1005,M15054,M,Preventive maintenance: sample trial,Low,Someone,2026-07-21,Open

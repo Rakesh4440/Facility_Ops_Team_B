@@ -1,0 +1,28 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.env.*
+.streamlit/secrets.toml
+
+
+
+# Local AI/agent settings and duplicate project copy
+.agents/
+.claude/
+FacilityOps_AI_Dashboard_FINAL/
+
+# Local editor, test, cache, and log files
+.vscode/
+.idea/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+*.log
+.DS_Store
+Thumbs.db
+test_ollama.py

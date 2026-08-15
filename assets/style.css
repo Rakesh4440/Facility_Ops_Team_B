@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root{
+ --bg:#0f172a;
+ --bg2:#16213e;
+ --card:#172554;
+ --border:#2b3f67;
+ --text:#f8fafc;
+ --muted:#94a3b8;
+ --primary:#2563eb;
+ --primary2:#38bdf8;
+}
+
+html,body,[class*="css"]{font-family:'Inter',sans-serif;}
+.stApp,[data-testid="stAppViewContainer"]{
+background:linear-gradient(135deg,#0b1220,#13284d 55%,#10273b);
+color:var(--text);
+}
+
+header[data-testid="stHeader"]{
+background:#13284d!important;
+border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.block-container{
+max-width:1400px;
+padding:2rem;
+}
+
+section[data-testid="stSidebar"]{
+background:#101b31;
+border-right:1px solid var(--border);
+}
+
+[data-testid="metric-container"],
+[data-testid="stDataFrame"],
+[data-testid="stVerticalBlockBorderWrapper"]{
+background:#17233f;
+border:1px solid var(--border);
+border-radius:16px;
+box-shadow:0 10px 30px rgba(0,0,0,.2);
+}
+
+label,[data-testid="stWidgetLabel"] p{
+color:#dbeafe!important;
+font-weight:600!important;
+}
+
+[data-testid="stTextInput"] input,
+[data-baseweb="select"]>div{
+background:#0f172a!important;
+color:white!important;
+border:1px solid #31486d!important;
+border-radius:12px!important;
+}
+
+.stButton>button,
+.stDownloadButton>button{
+background:linear-gradient(135deg,var(--primary),var(--primary2))!important;
+color:white!important;
+border:none!important;
+border-radius:12px!important;
+font-weight:700!important;
+padding:.65rem 1rem!important;
+box-shadow:0 10px 22px rgba(37,99,235,.28);
+}
+
+.stButton>button:hover{
+transform:translateY(-2px);
+}
+
+.pitch-form-card{text-align:center;margin-bottom:1.2rem;}
+.pitch-form-card h2{
+font-size:2rem;
+margin:.3rem 0;
+color:white;
+}
+.pitch-form-card p{
+color:var(--muted);
+}
+
+[data-testid="stForm"]{
+background:#162544!important;
+border:1px solid rgba(255,255,255,.08)!important;
+border-radius:22px!important;
+padding:2rem!important;
+box-shadow:0 20px 40px rgba(0,0,0,.28)!important;
+}
+
+[data-testid="stForm"] input{
+background:#0f172a!important;
+border-radius:10px!important;
+border:1px solid #334155!important;
+}
+
+[data-testid="stForm"] button[type="submit"]{
+background:linear-gradient(135deg,#2563eb,#06b6d4)!important;
+color:white!important;
+font-weight:700!important;
+border-radius:10px!important;
+}
+
+button[kind="tertiary"],
+[data-testid="stBaseButton-tertiary"]{
+background:transparent!important;
+border:none!important;
+color:#7dd3fc!important;
+font-weight:600!important;
+}
+
+button[kind="tertiary"]:hover{
+color:white!important;
+text-decoration:underline!important;
+}
+
+.user-profile-card{
+background:#17233f;
+border:1px solid var(--border);
+border-radius:14px;
+padding:1rem;
+}
