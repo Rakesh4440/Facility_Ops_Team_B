@@ -9,10 +9,7 @@ __pycache__/
 
 
 
-# Local AI/agent settings and duplicate project copy
-.agents/
-.claude/
-FacilityOps_AI_Dashboard_FINAL/
+
 
 # Local editor, test, cache, and log files
 .vscode/
