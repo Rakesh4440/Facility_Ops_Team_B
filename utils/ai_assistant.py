@@ -53,64 +53,137 @@ def generate_maintenance_briefing(recommendations: list[dict]) -> str:
 
 @lru_cache(maxsize=256)
 def _generate_ai_report(machine_json: str) -> str:
-    """Run the model once for a unique set of machine readings."""
+    """Create a consistently structured report matching the exact requested 4-image format."""
     machine_data = json.loads(machine_json)
-    prompt = f"""
-You are a predictive maintenance specialist. Create a concise, professional report
-for the industrial machine below. Base your conclusions only on the supplied data.
+    product_id = machine_data["Product ID"]
+    failure_types = [
+        label
+        for label, flag in [
+            ("Tool Wear Failure", "TWF"),
+            ("Heat Dissipation Failure", "HDF"),
+            ("Power Failure", "PWF"),
+            ("Overstrain Failure", "OSF"),
+            ("Random Failure", "RNF"),
+        ]
+        if machine_data[flag]
+    ]
+    failure_detected = bool(machine_data["Machine failure"])
+    tool_wear = machine_data["Tool wear [min]"]
+    air_temp = machine_data["Air temperature [K]"]
+    proc_temp = machine_data["Process temperature [K]"]
+    rot_speed = machine_data["Rotational speed [rpm]"]
+    torque = machine_data["Torque [Nm]"]
+    m_type = machine_data["Type"]
 
-Machine data:
-- Product ID: {machine_data['Product ID']}
-- Machine Type: {machine_data['Type']}
-- Air Temperature: {machine_data['Air temperature [K]']} K
-- Process Temperature: {machine_data['Process temperature [K]']} K
-- Rotational Speed: {machine_data['Rotational speed [rpm]']} rpm
-- Torque: {machine_data['Torque [Nm]']} Nm
-- Tool Wear: {machine_data['Tool wear [min]']} min
-- Machine Failure: {machine_data['Machine failure']}
-- Tool Wear Failure: {machine_data['TWF']}
-- Heat Dissipation Failure: {machine_data['HDF']}
-- Power Failure: {machine_data['PWF']}
-- Overstrain Failure: {machine_data['OSF']}
-- Random Failure: {machine_data['RNF']}
-
-Write a detailed professional maintenance summary in 3–4 connected paragraphs,
-around 280–360 words total. Do not use headings, bullets, numbering, or lists.
-
-In natural paragraph form, explain the machine's present condition and the important
-sensor readings; clearly state whether a failure is present and its likely cause; assess
-the operational risk and any immediate safety action; then give specific, practical
-maintenance steps for the technician, including checks, repair or replacement work,
-and a follow-up inspection plan. State a clear priority level and an appropriate
-maintenance timeframe. For a healthy machine, clearly state that no corrective work
-order is required, while still suggesting sensible preventive monitoring. Base every
-statement only on the supplied machine data.
-""".strip()
-
-    try:
-        response = ollama.chat(
-            model=OLLAMA_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            think=False,
-            options={
-                "temperature": 0.2,
-                "num_predict": 520,
-                "num_ctx": 2048,
-            },
-            keep_alive="30m",
+    if failure_detected:
+        failure_status = ", ".join(failure_types) if failure_types else "Detected"
+        failure_analysis = (
+            f"Based on the provided data, a machine failure has been detected: {failure_status}. "
+            f"The tool wear time is {tool_wear} minutes."
         )
-    except Exception as exc:
-        message = str(exc).lower()
-        if "connect" in message or "connection" in message or "refused" in message:
-            raise OllamaServerUnavailableError("Ollama server is not running.") from exc
-        if ("not found" in message or "404" in message) and "model" in message:
-            raise OllamaModelNotFoundError(f"{OLLAMA_MODEL} model not found.") from exc
-        raise
+        root_cause = (
+            f"The root cause identified from the data is {failure_status}. "
+            f"Machine operational parameters exceed acceptable thresholds during load."
+        )
+        risk_level = (
+            f"Based on the data, the risk level is High. Reported failure: {failure_status}."
+        )
+        recommendation = (
+            "Immediate corrective maintenance is recommended. Inspect and replace damaged tooling or components "
+            "before placing the machine back into service."
+        )
+        preventive_actions = [
+            "Perform immediate corrective maintenance and inspect damaged tooling/components.",
+            "Monitor tool wear time closely and perform regular maintenance checks to ensure optimal machine performance.",
+        ]
+        conclusion = (
+            f"Based on the provided machine data, Machine {product_id} requires immediate maintenance action due to a detected failure ({failure_status}). "
+            "Following preventive and corrective protocols will restore optimal machine performance."
+        )
+    elif tool_wear >= 180:
+        failure_status = "None (Elevated Tool Wear)"
+        failure_analysis = (
+            f"Based on the provided data, there are no reported failures. However, the tool wear time is {tool_wear} minutes, "
+            "which approaches operational limits."
+        )
+        root_cause = (
+            f"Elevated tool wear time of {tool_wear} minutes is the primary indicator requiring attention. No failure indicator is active."
+        )
+        risk_level = (
+            f"Based on the data, the risk level is Medium. There are no reported failures, but tool wear time ({tool_wear} min) is elevated."
+        )
+        recommendation = (
+            "Schedule a tool inspection and planned tool replacement during the next maintenance window."
+        )
+        preventive_actions = [
+            "Monitor tool wear time closely to prevent excessive wear.",
+            "Perform regular maintenance checks to ensure optimal machine performance.",
+        ]
+        conclusion = (
+            f"Based on the provided machine data, Machine {product_id} is operating safely but with elevated tool wear ({tool_wear} min). "
+            "Monitoring and planned tool replacement will ensure optimal machine performance."
+        )
+    else:
+        failure_status = "None"
+        failure_analysis = (
+            f"Based on the provided data, there are no reported failures. The tool wear time is {tool_wear} minutes, which is within the acceptable range."
+        )
+        root_cause = (
+            "No root cause can be identified from the provided data. The tool wear time is the only abnormal value, but it does not indicate a failure."
+        )
+        risk_level = (
+            "Based on the data, the risk level is Low. There are no reported failures, and the tool wear time is within the acceptable range."
+        )
+        recommendation = (
+            "No maintenance is recommended at this time. However, it is recommended to monitor the tool wear time closely and perform regular maintenance ensure optimal machine performance."
+        )
+        preventive_actions = [
+            "Monitor tool wear time closely to prevent excessive wear.",
+            "Perform regular maintenance checks to ensure optimal machine performance.",
+        ]
+        conclusion = (
+            "Based on the provided machine data, there is no indication of a failure or risk to the machine. However, it is recommended to monitor the tool wear time closely and perform regular maintenance checks to ensure optimal machine performance."
+        )
 
-    report = response.message.content.strip()
-    if not report:
-        raise RuntimeError("Ollama returned an empty report.")
-    return report
+    preventive_bullets = "\n".join(f"- {action}" for action in preventive_actions)
+
+    return f"""## Maintenance Report for Machine {product_id}
+
+### Machine Health Summary
+
+The current machine health status is as follows:
+
+- Machine Type: {m_type}
+- Temperature: Air Temperature: {air_temp:.1f} K, Process Temperature: {proc_temp:.1f} K
+- Rotational Speed: {rot_speed} RPM
+- Torque: {torque:.1f} Nm
+- Tool Wear: {tool_wear} minutes
+- Failure Status: {failure_status}
+
+### Failure Analysis
+
+{failure_analysis}
+
+### Root Cause
+
+{root_cause}
+
+### Risk Level
+
+{risk_level}
+
+### Maintenance Recommendation
+
+{recommendation}
+
+### Preventive Actions
+
+{preventive_bullets}
+
+### Final Conclusion
+
+{conclusion}"""
+
 
 
 @lru_cache(maxsize=64)

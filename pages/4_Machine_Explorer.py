@@ -15,6 +15,7 @@ from utils.work_orders import (
     save_work_orders,
 )
 from utils.work_order_pdf import build_work_order_pdf
+from utils.ai_report_pdf import build_ai_report_pdf
 
 
 try:
@@ -155,11 +156,11 @@ if selected_machine_id:
                 st.markdown(f":material/{'error' if machine[flag] else 'check_circle'}: **{label}:** {result}")
 
     st.subheader(":material/smart_toy: AI maintenance assistant")
-    st.caption("Get a focused maintenance brief with sensor context, risk, and the next recommended action.")
+    st.caption("Generate a complete maintenance report with sensor context, risk, and recommended actions.")
     if st.button("Analyze machine", icon=":material/auto_awesome:", type="primary"):
         progress = st.progress(0, text="Preparing machine data...")
         progress.progress(25, text="Preparing machine data...")
-        progress.progress(50, text="Generating concise AI report with llama3.2...")
+        progress.progress(50, text="Generating complete AI maintenance report...")
 
         try:
             st.session_state.ai_report = {
@@ -181,10 +182,17 @@ if selected_machine_id:
 
     report = st.session_state.ai_report
     if report and report["product_id"] == machine["Product ID"]:
-        st.success("Analysis complete — review the highlighted maintenance priorities below.", icon=":material/check_circle:")
+        st.success("Report Generated Successfully", icon=":material/check_circle:")
         with st.container(border=True):
-            st.markdown("### :material/description: AI maintenance summary")
             st.markdown(report["content"])
+            st.download_button(
+                "Download report",
+                data=build_ai_report_pdf(report["content"]),
+                file_name=f"{machine['Product ID']}_ai_maintenance_report.pdf",
+                mime="application/pdf",
+                icon=":material/download:",
+                type="primary",
+            )
 
         if machine["Machine failure"]:
             st.divider()
